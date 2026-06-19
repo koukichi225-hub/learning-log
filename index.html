@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>学習ログ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+
+    ul {
+      margin-top: 1.5rem;
+      padding-left: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>学習ログ</h1>
+  <p>今日からコードの勉強を始めます。</p>
+
+  <input type="text" id="learning-input" placeholder="今日学んだこと">
+  <br>
+  <button id="add-button">追加</button>
+
+  <ul id="learning-list"></ul>
+
+  <script>
+    // localStorage に保存するときのキー（名前）
+    var STORAGE_KEY = 'learning-log';
+
+    // 要素を取得する
+    var input = document.getElementById('learning-input');
+    var button = document.getElementById('add-button');
+    var list = document.getElementById('learning-list');
+
+    // localStorage から記録を読み出す
+    function loadRecords() {
+      var saved = localStorage.getItem(STORAGE_KEY);
+
+      // まだ保存されていなければ、空の配列を返す
+      if (saved === null) {
+        return [];
+      }
+
+      // 文字列を配列に戻して返す
+      return JSON.parse(saved);
+    }
+
+    // 記録を localStorage に保存する
+    function saveRecords(records) {
+      // 配列を文字列に変換して保存する
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    // 1件の記録を画面のリストに表示する
+    function showRecord(text) {
+      var item = document.createElement('li');
+      item.textContent = text;
+      list.appendChild(item);
+    }
+
+    // 保存されている記録をすべて画面に表示する
+    function showAllRecords() {
+      list.innerHTML = '';
+      var records = loadRecords();
+
+      for (var i = 0; i < records.length; i++) {
+        showRecord(records[i]);
+      }
+    }
+
+    // ページを開いたとき、保存済みの記録を表示する
+    showAllRecords();
+
+    // ボタンが押されたときの処理
+    button.addEventListener('click', function () {
+      var text = input.value.trim();
+
+      // 空の入力は追加しない
+      if (text === '') {
+        return;
+      }
+
+      // 記録を配列に追加して localStorage に保存する
+      var records = loadRecords();
+      records.push(text);
+      saveRecords(records);
+
+      // リストに新しい項目を追加する
+      showRecord(text);
+
+      // 入力欄を空にする
+      input.value = '';
+      input.focus();
+    });
+  </script>
+</body>
+</html>
