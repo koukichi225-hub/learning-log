@@ -1,0 +1,44 @@
+# 古い枝を消すための一度きりの作業。
+# クラウド側からは GitHub 上の枝を消せない（403）ため、GitHub 自身に消してもらう。
+# 消し終わったら、このファイル自身も消して main をきれいに戻す。
+name: 古い枝を畳む（一度きり）
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: 枝を消す
+        run: |
+          for b in \
+            claude/memento-mori-corporate-design-augmcb \
+            claude/claude-md-offline-automation-1t44ib \
+            records \
+            claude/beauty-salon-hp-analysis-7kqjws \
+            claude/hp-lp-design-patterns-jrdu2m \
+            claude/construction-video-prompt-1qdzgy \
+            claude/demo-site-implementation-handoff-67wfje \
+            claude/hotel-hp-video-animation-b2shup \
+            claude/portfolio-site-creation-xgwtq8 \
+            claude/slack-colosseum-check-03ye02
+          do
+            if git push origin --delete "$b"; then echo "消した: $b"; else echo "見つからない（すでに無い）: $b"; fi
+          done
+
+      - name: この作業ファイル自身を消す
+        run: |
+          git config user.name "孝吉"
+          git config user.email "koukichi225@gmail.com"
+          git rm -q .github/workflows/cleanup-branches.yml
+          rmdir .github/workflows .github 2>/dev/null || true
+          git commit -m "古い枝を畳み終えたので、そのための作業ファイルを消す"
+          git push origin main
